@@ -1,36 +1,36 @@
 ### Game Design Document
 
 ## Story
-<opis>
+*opis*
 TODO
 
 
 ## Characters
-<opis>
+*opis*
 TODO
 
 
 ## Level Design
-<opis>
+*opis*
 TODO
 
 
 ## Gameplay
-<opis>
+*opis*
 TODO
 * Unity First Person Controller
 
 
 ## Art
-<opis>
+*opis*
 TODO
 
 
 ## Sound
-<opis>
+*opis*
 TODO
 
 
 ## UI and Controlls
-<opis>
+*opis*
 TODO
