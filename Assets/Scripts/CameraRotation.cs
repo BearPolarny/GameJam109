@@ -24,6 +24,7 @@ public class CameraRotation : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         if (axes == RotationAxis.MouseX)
         {
             transform.Rotate(0, Input.GetAxis("Mouse X") * sensHorizontal, 0);
