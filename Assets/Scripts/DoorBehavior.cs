@@ -2,13 +2,18 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DoorBehavior : MonoBehaviour, IClickable
+public class DoorBehavior : MonoBehaviour, IUsable
 {
     public bool used = false;
     public bool opening = false, closing = false;
     public Transform pivot;
-    
-    public bool PerformAction()
+
+    [SerializeField]
+    private int RotateSpeed = 100;
+    [SerializeField]
+    private float RotationEnd = -0.7f;
+
+    public void PerformAction()
     {
         if (used)
         {
@@ -22,24 +27,23 @@ public class DoorBehavior : MonoBehaviour, IClickable
             used = opening = true;
             closing = false;
         }
-        return !used;
     }
 
     // Start is called before the first frame update
-    void Start()
-    {
+    //void Start()
+    //{
         
-    }
+    //}
 
     // Update is called once per frame
     void Update()
     {
         if (opening)
         {
-            transform.RotateAround(pivot.position, Vector3.down, Time.deltaTime*100);
+            transform.RotateAround(pivot.position, Vector3.down, Time.deltaTime * RotateSpeed);
             //Debug.Log(transform.rotation.y);
 
-            if(transform.rotation.y < -0.7)
+            if(transform.rotation.y < RotationEnd)
             {
                 //Debug.Log("Kuniec");
                 opening = false;
@@ -47,7 +51,7 @@ public class DoorBehavior : MonoBehaviour, IClickable
         }
         else if (closing)
         {
-            transform.RotateAround(pivot.position, Vector3.up, Time.deltaTime * 100);
+            transform.RotateAround(pivot.position, Vector3.up, Time.deltaTime * RotateSpeed);
             if (transform.rotation.y > 0)
             {
                 closing = false;

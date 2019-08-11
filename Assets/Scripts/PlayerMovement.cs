@@ -2,32 +2,47 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+
+[RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
+    [SerializeField]
+    private float speedWalk = 2.0f;
+    [SerializeField]
+    private float speedRun = 4.0f;
+    [SerializeField]
+    private float speedCrouch = 1.0f;
 
-    public float speed_walk = 2.0f;
-    public float speed_run = 4.0f;
-    public float speed_crouch = 1.0f;
-    public float max_sprint = 4f;
+    [SerializeField]
+    private float sprintMaxTime = 4f; // in seconds
+    private float sprintTimeLeft = 4f;
+    [SerializeField]
+    private float sprintRegenMod = 1;
+    [SerializeField]
+    private float sprintRegenThreshold = 2; // minimum time to rest from running
 
-    public float sprint_left = 3f;
 
-    public float jump_height = 4.0f;
-
-    public float height;
-    float speed;
-    bool isRunning = false;
-    bool isRegenerting = false;
+    [SerializeField]
+    private Vector3 jumpForce = new Vector3(0, 3f, 0);
+    
+    private float speed = 0;
+    
+    private bool isRunning = false;
+    private bool isRegenerting = false;
+    private bool isSprintLocked = false;
+    private bool isCrouching = false;
+    //private bool isGrounded = true;
 
     private CharacterController CharacterComponent;
-    private bool isCrouching = false;
-    private float sprint_modificator = 1;
+    private Rigidbody Rigidbody;
 
     // Use this for initialization
     void Start()
     {
         CharacterComponent = GetComponent<CharacterController>();
-        speed = speed_walk;
+        Rigidbody = GetComponent<Rigidbody>();
+        speed = speedWalk;
     }
 
     // Update is called once per frame
@@ -35,72 +50,89 @@ public class PlayerMovement : MonoBehaviour
     {
         KeyboardMovement();
 
-        if (isRunning && sprint_left > 0)
-        {
-            sprint_left -= Time.deltaTime;
-        }
-        else if (sprint_left <= 0 && !isCrouching)
-        {
-            speed = speed_walk;
-            isRegenerting = true;
-        } else if (sprint_left < max_sprint)
-        {
-            sprint_left += Time.deltaTime * sprint_modificator;
-
-            if (isRegenerting && sprint_left > 2)
-            {
-                isRegenerting = false;
-            }
-        }
-    }
-
-    void KeyboardMovement()
-    {
         float deltaX, deltaZ;
-        if (Input.GetKeyDown("left shift") && sprint_left > 2 && !isRegenerting)
-        {
-            speed = speed_run;
-            isRunning = true;
-            Debug.Log("speeeeeed");
-        }
-        else if (Input.GetKeyUp("left shift"))
-        {
-            speed = speed_walk;
-            isRunning = false;
-        }
-
-        if (Input.GetKeyDown("left ctrl"))
-        {
-            isCrouching = true;
-            speed = speed_crouch;
-        }
-        else if (Input.GetKeyUp("left ctrl"))
-        {
-            speed = speed_walk;
-            isCrouching = false;
-        }
-
 
         deltaX = Input.GetAxis("Horizontal") * speed;
         deltaZ = Input.GetAxis("Vertical") * speed;
 
-        // Skakanie ssie pałkę motzno. Czasami skacze jak powinien, a przez resztę przypadków skacze jakby nogę złamał
-        if (CharacterComponent.isGrounded && Input.GetButton("Jump"))
-        {
-            height = 0; // to chyba naprawiło ^ bug
-            height += jump_height;
 
-        }
-        else if (!CharacterComponent.isGrounded)
-        {
-            height += Physics.gravity.y * Time.deltaTime;
-        }
-
-        Vector3 movement = new Vector3(deltaX, height, deltaZ);
-        movement = Vector3.ClampMagnitude(movement, speed_run);  //Przez to, że zapomiałem o tym i że zablokowałem maks prędkość na speed_walk przez pół godziny zastanawiałem się dlaczego nie mogę biegać...
+        Vector3 movement = new Vector3(deltaX, 0, deltaZ);
 
         movement = transform.TransformDirection(movement);
         movement *= Time.deltaTime;
         CharacterComponent.Move(movement);
+
+    }
+
+    void KeyboardMovement()
+    {
+        
+        if (Input.GetKeyDown(KeyCode.LeftShift) && !isSprintLocked)
+        {
+            isRunning = true;
+            isRegenerting = false;
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftShift))
+        {
+            isRunning = false;
+            isRegenerting = true;
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftControl))
+        {
+            isCrouching = true;
+        }
+        else if (Input.GetKeyUp(KeyCode.LeftControl))
+        {
+            isCrouching = false;
+        }
+
+        if (isRunning || isCrouching)  // Crouching has bigger priority than running
+        {
+            if (isCrouching)
+            {
+                speed = speedCrouch;
+                isRunning = false;
+
+            } else
+            {
+                speed = speedRun;
+            }
+        } else
+        {
+            speed = speedWalk;
+        }
+
+        if (isRunning && !isSprintLocked)
+        {
+            // Mam czas - biegne
+            Debug.Log("run");
+            sprintTimeLeft -= Time.deltaTime;
+        }
+        if (!isCrouching && sprintTimeLeft < 0)
+        {
+            Debug.Log("no run");
+            // nie mam czasu - nie biegne, zaczynam regenerowac
+            speed = speedWalk;
+            isSprintLocked = true;
+        }
+        if (isRegenerting)
+        {
+            Debug.Log("regen norun");
+            sprintTimeLeft += Time.deltaTime * sprintRegenMod;
+            
+            if (isSprintLocked && sprintTimeLeft > sprintRegenThreshold)    // lazy evaluation? mam nadzieję
+            {
+                Debug.Log("regen run");
+                // mam czas regeneruje biegne
+                isSprintLocked = false;
+            }
+        }
+        if (sprintTimeLeft > sprintMaxTime)
+        {
+            Debug.Log("no regen");
+            isRegenerting = false;
+        }
+
     }
 }
