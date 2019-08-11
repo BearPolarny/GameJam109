@@ -7,6 +7,16 @@ using UnityEngine;
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
+
+    enum EState
+    {
+        RUNNING,
+        SNEAKING,
+        WALKING
+    }
+    [SerializeField]
+    EState CurrentState = EState.WALKING;
+
     [SerializeField]
     private float speedWalk = 2.0f;
     [SerializeField]
@@ -16,7 +26,7 @@ public class PlayerMovement : MonoBehaviour
 
     [SerializeField]
     private float sprintMaxTime = 4f; // in seconds
-    private float sprintTimeLeft = 4f;
+    public float sprintTimeLeft = 4f;
     [SerializeField]
     private float sprintRegenMod = 1;
     [SerializeField]
@@ -28,10 +38,8 @@ public class PlayerMovement : MonoBehaviour
     
     private float speed = 0;
     
-    private bool isRunning = false;
     private bool isRegenerting = false;
     private bool isSprintLocked = false;
-    private bool isCrouching = false;
     //private bool isGrounded = true;
 
     private CharacterController CharacterComponent;
@@ -49,6 +57,49 @@ public class PlayerMovement : MonoBehaviour
     void Update()
     {
         KeyboardMovement();
+
+        switch (CurrentState)
+        {
+            case EState.WALKING:
+                speed = speedWalk;
+                break;
+            case EState.SNEAKING:
+                speed = speedCrouch;
+                break;
+            case EState.RUNNING:
+                if (!isSprintLocked) // Normal running 
+                {
+                    //Debug.Log("run");
+                    sprintTimeLeft -= Time.deltaTime;
+                }
+                if (sprintTimeLeft < 0) // Exhausted
+                {
+                    Debug.Log("no run");
+                    CurrentState = EState.WALKING;
+                    isSprintLocked = true;
+                }
+                speed = speedRun;
+                break;
+            default:
+                break;
+        }
+        
+        if (isRegenerting)
+        {
+            Debug.Log("regen norun");
+            sprintTimeLeft += Time.deltaTime * sprintRegenMod;
+
+            if (isSprintLocked && sprintTimeLeft > sprintRegenThreshold)    // End sprint cooldown
+            {
+                Debug.Log("regen run");
+                isSprintLocked = false;
+            }
+        }
+        if (isRegenerting && sprintTimeLeft > sprintMaxTime) // Regenerated
+        {
+            Debug.Log("no regen");
+            isRegenerting = false;
+        }
 
         float deltaX, deltaZ;
 
@@ -69,70 +120,24 @@ public class PlayerMovement : MonoBehaviour
         
         if (Input.GetKeyDown(KeyCode.LeftShift) && !isSprintLocked)
         {
-            isRunning = true;
+            CurrentState = EState.RUNNING;
             isRegenerting = false;
         }
         else if (Input.GetKeyUp(KeyCode.LeftShift))
         {
-            isRunning = false;
+            CurrentState = EState.WALKING;
             isRegenerting = true;
         }
 
         if (Input.GetKeyDown(KeyCode.LeftControl))
         {
-            isCrouching = true;
+            CurrentState = EState.SNEAKING;
         }
         else if (Input.GetKeyUp(KeyCode.LeftControl))
         {
-            isCrouching = false;
+            CurrentState = EState.WALKING;
         }
-
-        if (isRunning || isCrouching)  // Crouching has bigger priority than running
-        {
-            if (isCrouching)
-            {
-                speed = speedCrouch;
-                isRunning = false;
-
-            } else
-            {
-                speed = speedRun;
-            }
-        } else
-        {
-            speed = speedWalk;
-        }
-
-        if (isRunning && !isSprintLocked)
-        {
-            // Mam czas - biegne
-            Debug.Log("run");
-            sprintTimeLeft -= Time.deltaTime;
-        }
-        if (!isCrouching && sprintTimeLeft < 0)
-        {
-            Debug.Log("no run");
-            // nie mam czasu - nie biegne, zaczynam regenerowac
-            speed = speedWalk;
-            isSprintLocked = true;
-        }
-        if (isRegenerting)
-        {
-            Debug.Log("regen norun");
-            sprintTimeLeft += Time.deltaTime * sprintRegenMod;
-            
-            if (isSprintLocked && sprintTimeLeft > sprintRegenThreshold)    // lazy evaluation? mam nadzieję
-            {
-                Debug.Log("regen run");
-                // mam czas regeneruje biegne
-                isSprintLocked = false;
-            }
-        }
-        if (sprintTimeLeft > sprintMaxTime)
-        {
-            Debug.Log("no regen");
-            isRegenerting = false;
-        }
+        
 
     }
 }
