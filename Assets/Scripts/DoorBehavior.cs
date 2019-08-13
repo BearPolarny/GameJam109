@@ -2,16 +2,24 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class DoorBehavior : MonoBehaviour, IUsable
+public class DoorBehavior : MonoBehaviour, IInteractionable
 {
-    public bool used = false;
-    public bool opening = false, closing = false;
-    public Transform pivot;
+    [SerializeField]
+    bool locked = true;
+    [SerializeField]
+    private bool used = false;
+    private bool opening = false, closing = false;
+    [SerializeField]
+    private Transform pivot;
+    public int Id;
+    
 
     [SerializeField]
     private int RotateSpeed = 100;
     [SerializeField]
     private float RotationEnd = -0.7f;
+    [SerializeField]
+    private float RotationStart = 0f;
 
     public void PerformAction()
     {
@@ -28,11 +36,47 @@ public class DoorBehavior : MonoBehaviour, IUsable
             closing = false;
         }
     }
+    public void PerformInteraction()
+    {
+        // Zawsze potem uzywaj normalnie
+        if (!locked)
+        {
+            PerformAction();
+            return;
+        }
+
+        // Sprawdz czy jest kluczyk
+        Equipment equipment = GameObject.Find("Player").GetComponent<Equipment>();
+        Key key;
+        try
+        {
+            key = (Key)equipment.Items.Find(x => (x.GetType() == typeof(Key) && ((Key)x).Id == Id));
+            Debug.Log(key.Id);
+        // Jezeli jest to uzyj i odblokuj drzwi
+            locked = false;
+            equipment.Items.Remove(key);
+            Debug.Log("Interakcja");
+            
+        } catch (System.Exception)
+        {
+            Debug.Log("Brak Klucza");
+
+        }
+
+        //if (key != null)
+        //{
+        //    locked = false;
+        //}
+
+
+
+
+    }
 
     // Start is called before the first frame update
     //void Start()
     //{
-        
+
     //}
 
     // Update is called once per frame
@@ -52,7 +96,7 @@ public class DoorBehavior : MonoBehaviour, IUsable
         else if (closing)
         {
             transform.RotateAround(pivot.position, Vector3.up, Time.deltaTime * RotateSpeed);
-            if (transform.rotation.y > 0)
+            if (transform.rotation.y > RotationStart)
             {
                 closing = false;
                 

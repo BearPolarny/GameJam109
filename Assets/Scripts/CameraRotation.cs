@@ -13,11 +13,11 @@ public class CameraRotation : MonoBehaviour
 
     public RotationAxis axes = RotationAxis.MouseX;
 
-    public float minimumVert = -70.0f;
-    public float maximumVert = 90.0f;
+    private float minimumVert = -70.0f;
+    private float maximumVert = 80.0f;
 
-    public float sensHorizontal = 10.0f;
-    public float sensVertical = 10.0f;
+    private float sensHorizontal = 10.0f;
+    private float sensVertical = 10.0f;
 
     public float _rotationX = 0;
 
