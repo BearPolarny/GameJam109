@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -31,10 +30,6 @@ public class PlayerMovement : MonoBehaviour
     private float sprintRegenMod = 1;
     [SerializeField]
     private float sprintRegenThreshold = 2; // minimum time to rest from running
-
-
-    [SerializeField]
-    private Vector3 jumpForce = new Vector3(0, 3f, 0);
     
     private float speed = 0;
     
@@ -58,6 +53,7 @@ public class PlayerMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        
         KeyboardMovement();
 
         switch (CurrentState)

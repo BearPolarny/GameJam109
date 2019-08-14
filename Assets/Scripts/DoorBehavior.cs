@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(BoxCollider))]
 public class DoorBehavior : MonoBehaviour, IInteractionable
 {
     [SerializeField]
     bool locked = true;
+
     [SerializeField]
     private bool used = false;
     private bool opening = false, closing = false;
@@ -14,35 +16,46 @@ public class DoorBehavior : MonoBehaviour, IInteractionable
     public int Id;
     
 
+
     [SerializeField]
     private int RotateSpeed = 100;
     [SerializeField]
-    private float RotationEnd = -0.7f;
+    private float RotationEnd = 0f;
     [SerializeField]
     private float RotationStart = 0f;
     [SerializeField]
     private float rot = 0f;
 
+    BoxCollider BoxCollider;
     public void PerformAction()
     {
+
+        BoxCollider.enabled = false;
+
         if (used)
         {
+            //Debug.LogWarning("used");
             closing = true;
             opening = false;
             used = false;
 
 
-        } else
+        }
+        else
         {
-            used = opening = true;
+            //Debug.LogWarning("unused");
+            used = true;
+            opening = true;
             closing = false;
         }
     }
     public void PerformInteraction()
     {
+
         // Zawsze potem uzywaj normalnie
         if (!locked)
         {
+            Debug.LogWarning("unlocked");
             PerformAction();
             return;
         }
@@ -76,10 +89,12 @@ public class DoorBehavior : MonoBehaviour, IInteractionable
     }
 
     // Start is called before the first frame update
-    //void Start()
-    //{
-
-    //}
+    void Start()
+    {
+        BoxCollider = GetComponent<BoxCollider>();
+        RotationStart = transform.rotation.y;
+        RotationEnd = RotationStart - 0.7f;
+    }
 
     // Update is called once per frame
     void Update()
@@ -89,10 +104,11 @@ public class DoorBehavior : MonoBehaviour, IInteractionable
             transform.RotateAround(pivot.position, Vector3.down, Time.deltaTime * RotateSpeed);
             //Debug.Log(transform.rotation.y);
 
-            if(transform.rotation.y < RotationEnd)
+            if (transform.rotation.y < RotationEnd)
             {
                 //Debug.Log("Kuniec");
                 opening = false;
+                BoxCollider.enabled = true;
             }
         }
         else if (closing)
@@ -101,7 +117,8 @@ public class DoorBehavior : MonoBehaviour, IInteractionable
             if (transform.rotation.y > RotationStart)
             {
                 closing = false;
-                
+                BoxCollider.enabled = true;
+
             }
         }
         rot = transform.rotation.y;
