@@ -75,7 +75,7 @@ public class PlayerMovement : MonoBehaviour
                 }
                 if (sprintTimeLeft < 0) // Exhausted
                 {
-                    Debug.Log("no run");
+                    //Debug.Log("no run");
                     CurrentState = EState.WALKING;
                     isSprintLocked = true;
                 }
@@ -87,18 +87,18 @@ public class PlayerMovement : MonoBehaviour
         
         if (isRegenerting)
         {
-            Debug.Log("regen norun");
+            //Debug.Log("regen norun");
             sprintTimeLeft += Time.deltaTime * sprintRegenMod;
 
             if (isSprintLocked && sprintTimeLeft > sprintRegenThreshold)    // End sprint cooldown
             {
-                Debug.Log("regen run");
+                //Debug.Log("regen run");
                 isSprintLocked = false;
             }
         }
         if (isRegenerting && sprintTimeLeft > sprintMaxTime) // Regenerated
         {
-            Debug.Log("no regen");
+            //Debug.Log("no regen");
             isRegenerting = false;
         }
 

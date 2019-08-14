@@ -55,7 +55,7 @@ public class DoorBehavior : MonoBehaviour, IInteractionable
         // Zawsze potem uzywaj normalnie
         if (!locked)
         {
-            Debug.LogWarning("unlocked");
+            //Debug.LogWarning("unlocked");
             PerformAction();
             return;
         }
@@ -74,7 +74,7 @@ public class DoorBehavior : MonoBehaviour, IInteractionable
             
         } catch (System.Exception)
         {
-            Debug.Log("Brak Klucza");
+            Debug.LogWarning("Brak Klucza");
 
         }
 
