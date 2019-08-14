@@ -41,6 +41,8 @@ public class PlayerMovement : MonoBehaviour
     private bool isRegenerting = false;
     private bool isSprintLocked = false;
     //private bool isGrounded = true;
+    [SerializeField]
+    private bool unlimitedSprint = false;
 
     private CharacterController CharacterComponent;
     private Rigidbody Rigidbody;
@@ -70,7 +72,10 @@ public class PlayerMovement : MonoBehaviour
                 if (!isSprintLocked) // Normal running 
                 {
                     //Debug.Log("run");
-                    sprintTimeLeft -= Time.deltaTime;
+                    if (!unlimitedSprint)
+                    {
+                        sprintTimeLeft -= Time.deltaTime;
+                    }
                 }
                 if (sprintTimeLeft < 0) // Exhausted
                 {

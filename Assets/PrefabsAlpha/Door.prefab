@@ -199,7 +199,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   locked: 1
+  used: 0
   pivot: {fileID: 3071847725039566714}
   Id: 2
   RotateSpeed: 100
   RotationEnd: -0.7
+  RotationStart: 0

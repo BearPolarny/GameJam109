@@ -20,6 +20,8 @@ public class DoorBehavior : MonoBehaviour, IInteractionable
     private float RotationEnd = -0.7f;
     [SerializeField]
     private float RotationStart = 0f;
+    [SerializeField]
+    private float rot = 0f;
 
     public void PerformAction()
     {
@@ -102,7 +104,7 @@ public class DoorBehavior : MonoBehaviour, IInteractionable
                 
             }
         }
+        rot = transform.rotation.y;
     }
-
 
 }
