@@ -40,10 +40,10 @@ public class MouseController : MonoBehaviour
                     {
                         if (typeof(IInteractionable).IsAssignableFrom(Clickable.GetType()))
                         {
-                            Debug.Log("Interactionable");
+                            //Debug.Log("Interactionable");
                             ((IInteractionable)Clickable).PerformInteraction();
                         } else {
-                            Debug.Log("Usable");
+                            //Debug.Log("Usable");
                             Clickable.PerformAction();
                         }
                     }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 
 
-
 [RequireComponent(typeof(CharacterController))]
 public class PlayerMovement : MonoBehaviour
 {
@@ -31,10 +30,6 @@ public class PlayerMovement : MonoBehaviour
     private float sprintRegenMod = 1;
     [SerializeField]
     private float sprintRegenThreshold = 2; // minimum time to rest from running
-
-
-    [SerializeField]
-    private Vector3 jumpForce = new Vector3(0, 3f, 0);
     
     private float speed = 0;
     
@@ -47,6 +42,13 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController CharacterComponent;
     private Rigidbody Rigidbody;
 
+    public float SprintMaxTime { get => sprintMaxTime; protected set => sprintMaxTime = value; }
+    public float SprintTimeLeft { get => sprintTimeLeft; protected set => sprintTimeLeft = value; }
+    public bool IsSprintLocked { get => isSprintLocked; set => isSprintLocked = value; }
+
+
+
+
     // Use this for initialization
     void Start()
     {
@@ -55,9 +57,25 @@ public class PlayerMovement : MonoBehaviour
         speed = speedWalk;
     }
 
+    void FixedUpdate()
+    {
+        float deltaX, deltaZ;
+
+        deltaX = Input.GetAxis("Horizontal") * speed;
+        deltaZ = Input.GetAxis("Vertical") * speed;
+
+
+        Vector3 movement = new Vector3(deltaX, 0, deltaZ);
+
+        movement = transform.TransformDirection(movement);
+        movement *= Time.deltaTime;
+        CharacterComponent.Move(movement);
+    }
+
     // Update is called once per frame
     void Update()
     {
+        
         KeyboardMovement();
 
         switch (CurrentState)
@@ -79,7 +97,7 @@ public class PlayerMovement : MonoBehaviour
                 }
                 if (sprintTimeLeft < 0) // Exhausted
                 {
-                    Debug.Log("no run");
+                    //Debug.Log("no run");
                     CurrentState = EState.WALKING;
                     isSprintLocked = true;
                 }
@@ -91,32 +109,22 @@ public class PlayerMovement : MonoBehaviour
         
         if (isRegenerting)
         {
-            Debug.Log("regen norun");
+            //Debug.Log("regen norun");
             sprintTimeLeft += Time.deltaTime * sprintRegenMod;
 
             if (isSprintLocked && sprintTimeLeft > sprintRegenThreshold)    // End sprint cooldown
             {
-                Debug.Log("regen run");
+                //Debug.Log("regen run");
                 isSprintLocked = false;
             }
         }
         if (isRegenerting && sprintTimeLeft > sprintMaxTime) // Regenerated
         {
-            Debug.Log("no regen");
+            //Debug.Log("no regen");
             isRegenerting = false;
         }
 
-        float deltaX, deltaZ;
-
-        deltaX = Input.GetAxis("Horizontal") * speed;
-        deltaZ = Input.GetAxis("Vertical") * speed;
-
-
-        Vector3 movement = new Vector3(deltaX, 0, deltaZ);
-
-        movement = transform.TransformDirection(movement);
-        movement *= Time.deltaTime;
-        CharacterComponent.Move(movement);
+        
 
     }
 

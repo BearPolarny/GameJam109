@@ -14,7 +14,7 @@ public class Key: MonoBehaviour, IItem, IUsable
 
     public void PerformAction()
     {
-        Debug.Log("w Kluczyk ");
+        //Debug.Log("w Kluczyk ");
         Equipment equipment = GameObject.Find("Player").GetComponent<Equipment>();
         equipment.Items.Add(this);
         Destroy(GameObject.Find(name));
