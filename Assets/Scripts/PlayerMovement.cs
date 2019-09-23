@@ -42,12 +42,34 @@ public class PlayerMovement : MonoBehaviour
     private CharacterController CharacterComponent;
     private Rigidbody Rigidbody;
 
+    public float SprintMaxTime { get => sprintMaxTime; protected set => sprintMaxTime = value; }
+    public float SprintTimeLeft { get => sprintTimeLeft; protected set => sprintTimeLeft = value; }
+    public bool IsSprintLocked { get => isSprintLocked; set => isSprintLocked = value; }
+
+
+
+
     // Use this for initialization
     void Start()
     {
         CharacterComponent = GetComponent<CharacterController>();
         Rigidbody = GetComponent<Rigidbody>();
         speed = speedWalk;
+    }
+
+    void FixedUpdate()
+    {
+        float deltaX, deltaZ;
+
+        deltaX = Input.GetAxis("Horizontal") * speed;
+        deltaZ = Input.GetAxis("Vertical") * speed;
+
+
+        Vector3 movement = new Vector3(deltaX, 0, deltaZ);
+
+        movement = transform.TransformDirection(movement);
+        movement *= Time.deltaTime;
+        CharacterComponent.Move(movement);
     }
 
     // Update is called once per frame
@@ -102,17 +124,7 @@ public class PlayerMovement : MonoBehaviour
             isRegenerting = false;
         }
 
-        float deltaX, deltaZ;
-
-        deltaX = Input.GetAxis("Horizontal") * speed;
-        deltaZ = Input.GetAxis("Vertical") * speed;
-
-
-        Vector3 movement = new Vector3(deltaX, 0, deltaZ);
-
-        movement = transform.TransformDirection(movement);
-        movement *= Time.deltaTime;
-        CharacterComponent.Move(movement);
+        
 
     }
 

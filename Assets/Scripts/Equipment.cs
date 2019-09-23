@@ -6,8 +6,6 @@ public class Equipment : MonoBehaviour
 {
     //[SerializeField]
     public List<IItem> Items = new List<IItem>();
-    [SerializeField]
-    public string Word = null;
     // Start is called before the first frame update
     void Start()
     {
